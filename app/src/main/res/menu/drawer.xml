@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+            <item android:title="Compose" android:id="@+id/navigation_item_2" android:icon="@drawable/composea" ></item>
+            <item android:title="Trang cá nhân"  android:icon="@drawable/prof" ></item>
+            <item android:title="Thông báo" android:icon="@drawable/notify"></item>
+            <item android:title="Trò chuyện" android:icon="@drawable/chat"></item>
+
+
+
+
+    <item android:title="Ứng dụng">
+        <menu>
+            <item
+                android:title="Thông tin" android:icon="@drawable/info"/>
+            <item
+                android:title="Phản hồi" android:icon="@drawable/inb"/>
+        </menu>
+    </item>
+
+    <group android:id="@+id/shitss">
+
+            <item android:title="Cài đặt" android:icon="@drawable/setting"></item>
+            <item android:title="Thoát" android:icon="@drawable/exit"></item>
+    </group>
+
+
+
+
+
+</menu>

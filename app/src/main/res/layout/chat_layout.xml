@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/AppTheme.AppBarOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/chat_layout_fragment"
+    android:background="@color/white">
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/listChat"
+        android:divider="@color/white"
+        android:dividerHeight="@dimen/pad_5dp"
+        android:paddingBottom="@dimen/pad_10dp"
+        android:paddingTop="@dimen/pad_10dp"
+        tools:listitem="@layout/chat_item_rcv"
+        >
+
+
+    </ListView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray_light"
+        android:padding="@dimen/pad_5dp"
+        android:layout_weight="0.1"
+        tools:context="com.hust.chat.ChatActivity" >
+        <EditText
+            android:id="@+id/txtChat"
+            style="@style/edittext_msg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:hint="Type message...">
+
+            </EditText>
+        <Button
+            android:id="@+id/btSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/btn"
+            android:background="@drawable/ic_send" />
+
+    </LinearLayout>
+</LinearLayout>

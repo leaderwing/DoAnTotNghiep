@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <com.parse.ParseImageView
+        android:id="@+id/avatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/avatar"
+        android:layout_alignParentLeft="true" />
+
+    <ImageButton
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/addfr" />
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/avatar"
+        android:text="Cristiano Messi"
+        android:paddingLeft="3dip"
+        android:paddingRight="3dip" />
+
+    <TextView
+        android:id="@+id/user_school"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_name"
+        android:layout_toRightOf="@id/avatar"
+        android:layout_marginBottom="0dp"
+        android:text="Vien CNTT-TT"
+        android:paddingLeft="3dip"
+        android:paddingRight="3dip" />
+
+</RelativeLayout>

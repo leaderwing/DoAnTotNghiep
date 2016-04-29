@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Hust communication</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="tab_list">DANH SÁCH BẠN</string>
+    <string name="tab_finds">TÌM KIẾM THEO TÊN </string>
+    <string name="tab_finds_gps">TÌM KIẾM GPS</string>
+    <string name="dialog_title">SAVING DATA...</string>
+    <string name="dialog_load">LOADING DATA...</string>
+    <array name="category">
+        <item name="01" >Hỏi đáp sinh viên</item>
+        <item name="02">Giải trí</item>
+        <item name="03">Chia sẻ-Tâm sự</item>
+        <item name="04">Học tập-thi cử</item>
+
+    </array>
+</resources>
