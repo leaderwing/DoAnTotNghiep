@@ -10,13 +10,15 @@
         android:src="@drawable/avatar"
         android:layout_alignParentLeft="true" />
 
-    <ImageButton
+    <ToggleButton
         android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/addfr" />
+        android:checked="false"
+        android:textOff=""
+        android:textOn=""
+        android:background="@drawable/toogle_friend" />
 
     <TextView
         android:id="@+id/user_name"
@@ -38,5 +40,15 @@
         android:text="Vien CNTT-TT"
         android:paddingLeft="3dip"
         android:paddingRight="3dip" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/view_profile"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/viewpro"
+        android:layout_toLeftOf="@+id/add"
+        android:layout_marginLeft="5dp"
+         />
 
 </RelativeLayout>

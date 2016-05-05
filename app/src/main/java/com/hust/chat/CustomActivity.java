@@ -5,14 +5,11 @@ package com.hust.chat;
  */
 
 
+import android.app.ActionBar;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-
-import com.example.quy2016.doantotnghiep.R;
 
 //import com.chatt.demo.R;
 
@@ -21,7 +18,7 @@ import com.example.quy2016.doantotnghiep.R;
  * inherit the common behaviors like implementing a common interface that can be
  * used in all child activities.
  */
-public class CustomActivity extends AppCompatActivity implements OnClickListener
+public class CustomActivity extends FragmentActivity implements OnClickListener
 {
 
     /**
@@ -29,13 +26,13 @@ public class CustomActivity extends AppCompatActivity implements OnClickListener
      * effect. The view must have a Non-Transparent background.
      */
     public static final TouchEffect TOUCH = new TouchEffect();
+
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
     public void setContentView(int layoutResID)
     {
-
         super.setContentView(layoutResID);
         setupActionBar();
     }
@@ -49,16 +46,16 @@ public class CustomActivity extends AppCompatActivity implements OnClickListener
     protected void setupActionBar()
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-             ActionBar actionBar;
+            final ActionBar actionBar;
 
-            actionBar = getSupportActionBar();
+            actionBar = getActionBar();
 
             if (actionBar == null)
                 return;
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.back);
             actionBar.setHomeButtonEnabled(true);
 
         }

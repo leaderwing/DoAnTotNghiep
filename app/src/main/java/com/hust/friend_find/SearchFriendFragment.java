@@ -2,36 +2,37 @@ package com.hust.friend_find;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.quy2016.doantotnghiep.R;
 import com.model.ProfileUser;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-
-import org.w3c.dom.Text;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +45,15 @@ public class SearchFriendFragment extends Fragment{
     ListView search_results;
     ImageButton btnVoice;
     View view;
-    String found = "N";
+    RelativeLayout relativeLayout;
+    String found = "N",sentId;
     ArrayList<ProfileUser> userResult = new ArrayList<>();
     ArrayList<ProfileUser> filterUserResult = new ArrayList<>();
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_search_friend,container,false);
+        relativeLayout = (RelativeLayout) view.findViewById(R.id.relativeLayout);
         search = (SearchView) view.findViewById(R.id.searchView);
         search.setQueryHint("Tìm kiếm tên bạn bè...");
         search_results = (ListView) view.findViewById(R.id.listview_search);
@@ -99,13 +102,12 @@ public class SearchFriendFragment extends Fragment{
         });
         return view;
     }
-    public void filterUserArray(String newText)
-    {
+    public void filterUserArray(String newText) throws ParseException {
         String pName;
         filterUserResult.clear();
         for (int i = 0; i < userResult.size(); i++)
         {
-            pName = userResult.get(i).getAuthorName().toLowerCase();
+            pName = userResult.get(i).getParseUser("user").fetchIfNeeded().getString("name");
             if ( pName.contains(newText.toLowerCase()))
             {
                 filterUserResult.add(userResult.get(i));
@@ -154,15 +156,20 @@ public class SearchFriendFragment extends Fragment{
                         for (ParseObject user : objects) {
                             // returnResults = new ArrayList();
                             ProfileUser profileUser = new ProfileUser();
-                            profileUser.setAuthorName(user.getString("Name"));
+                            profileUser.setUser(user.getParseUser("user"));
                             profileUser.setSchool(user.getString("user_school"));
-                            if(!user.getParseFile("user_avatar").isDirty())
-                            profileUser.setPhotoFile(user.getParseFile("user_avatar"));
+                            profileUser.setObjectId(user.getObjectId());
+//                            if(!user.getParseFile("user_avatar").isDirty())
+//                            profileUser.setPhotoFile(user.getParseFile("user_avatar"));
                             //returnResults.add(profileUser);
                             mathFound = "N";
                             for (int i = 0; i < userResult.size(); i++) {
-                                if (userResult.get(i).getAuthorName().equals(profileUser.getAuthorName())) {
-                                    mathFound = "Y";
+                                try {
+                                    if (userResult.get(i).getParseUser("user").fetchIfNeeded().getString("name").equals(profileUser.getParseUser("user").fetchIfNeeded().getString("name"))) {
+                                        mathFound = "Y";
+                                    }
+                                } catch (ParseException e1) {
+                                    e1.printStackTrace();
                                 }
                             }
                             if (mathFound == "N") {
@@ -194,7 +201,11 @@ public class SearchFriendFragment extends Fragment{
             {
                 //calling this method to filter the search results from productResults and move them to
                 //filteredProductResults
-                filterUserArray(textSearch);
+                try {
+                    filterUserArray(textSearch);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 search_results.setAdapter(new SearchResultsAdapter(getActivity(),filterUserResult));
                 pd.dismiss();
             }
@@ -232,7 +243,7 @@ public class SearchFriendFragment extends Fragment{
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             ProfileUser user = userDetails.get(position);
             if(convertView == null)
@@ -242,11 +253,66 @@ public class SearchFriendFragment extends Fragment{
                 holder.avatar = (ParseImageView) convertView.findViewById(R.id.avatar);
                 holder.userName = (TextView) convertView.findViewById(R.id.user_name);
                 holder.user_school = (TextView) convertView.findViewById(R.id.user_school);
-                holder.add_friend = (ImageButton) convertView.findViewById(R.id.add);
-                holder.add_friend.setOnClickListener(new View.OnClickListener() {
+                holder.add_friend = (ToggleButton) convertView.findViewById(R.id.add);
+                holder.view_profile = (ImageButton) convertView.findViewById(R.id.view_profile );
+                holder.add_friend.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                   @Override
+                   public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                       if(isChecked)
+                       {
+                           ParseObject parseObject = ParseObject.create("User_comments");
+                           parseObject.put("from_user", ParseUser.getCurrentUser());
+                           parseObject.put("relation","follow");
+                           parseObject.put("to_user",userResult.get(position).getParseUser("user"));
+                           parseObject.saveInBackground(new SaveCallback() {
+                               @Override
+                               public void done(ParseException e) {
+                                   Snackbar snackbar = null;
+                                   try {
+                                       snackbar = Snackbar
+                                               .make(relativeLayout,"Bạn đã thêm "+ userResult.get(position).getParseUser("user").fetchIfNeeded().getString("name")+" vào danh sách theo dõi", Snackbar.LENGTH_LONG);
+                                   } catch (ParseException e1) {
+                                       e1.printStackTrace();
+                                   }
+
+                                   snackbar.show();
+                               }
+                           });
+                       }
+                       else
+                       {
+                           ParseQuery<ParseObject> newQuery = ParseQuery.getQuery("User_friends");
+                           newQuery.whereEqualTo("from_user",ParseUser.getCurrentUser());
+                           newQuery.whereEqualTo("to_user",userResult.get(position).getParseUser("user"));
+                           newQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+                               @Override
+                               public void done(ParseObject object, ParseException e) {
+                                   object.deleteEventually(new DeleteCallback() {
+                                       @Override
+                                       public void done(ParseException e) {
+                                           Snackbar snackbar = null;
+                                           try {
+                                               snackbar = Snackbar
+                                                       .make(relativeLayout,"Bạn đã hủy theo dõi "+ userResult.get(position).getParseUser("user").fetchIfNeeded().getString("name"), Snackbar.LENGTH_LONG);
+                                           } catch (ParseException e1) {
+                                               e1.printStackTrace();
+                                           }
+
+                                           snackbar.show();
+                                       }
+                                   });
+                               }
+                           });
+                       }
+                   }
+               });
+                holder.view_profile.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        Intent intent = new Intent(getContext(),ProfileUserFriendFragment.class);
+                        sentId = userResult.get(position).getObjectId();
+                        intent.putExtra("userDetails",sentId);
+                        startActivity(intent);
                     }
                 });
 
@@ -257,9 +323,13 @@ public class SearchFriendFragment extends Fragment{
             {
                 holder = (ViewHolder) convertView.getTag();
             }
-            if(!user.getPhotoFile().isDirty())
-            holder.avatar.setParseFile(user.getPhotoFile());
-            holder.userName.setText(user.getAuthorName());
+//            if(!user.getPhotoFile().isDirty())
+//            holder.avatar.setParseFile(user.getPhotoFile());
+            try {
+                holder.userName.setText(user.getParseUser("user").fetchIfNeeded().getString("name"));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             holder.user_school.setText(user.getSchool());
             return  convertView ;
         }
@@ -270,6 +340,7 @@ public class SearchFriendFragment extends Fragment{
         ParseImageView avatar;
         TextView userName;
         TextView user_school;
-        ImageButton add_friend;
+        ToggleButton add_friend;
+        ImageButton view_profile;
     }
 }

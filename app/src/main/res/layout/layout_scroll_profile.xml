@@ -154,6 +154,7 @@
                 android:layout_toEndOf="@id/ivContactItem7"
                 android:layout_toRightOf="@id/ivContactItem7"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:inputType="date"
                 android:focusable="false"
                 android:textColor="#212121" />
 

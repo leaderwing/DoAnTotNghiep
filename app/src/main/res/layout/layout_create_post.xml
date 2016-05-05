@@ -23,8 +23,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/spinnerCat"
         android:layout_marginTop="5dp"
-        android:background="@color/spinner"
+        android:prompt="@string/default_string"
         android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/textView4"
         android:layout_toEndOf="@+id/textView4" />
 
@@ -36,46 +37,60 @@
         android:layout_below="@+id/spinnerCat"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
-
+    <ScrollView
+        android:id="@+id/scrView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:layout_below="@+id/spinnerCat"
+        android:layout_alignLeft="@+id/spinnerCat"
+        android:layout_alignStart="@+id/spinnerCat">
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
+        android:maxLines="3"
         android:id="@+id/txtDescribe"
-        android:layout_below="@+id/spinnerCat"
-        android:layout_alignRight="@+id/spinnerCat"
-        android:layout_alignEnd="@+id/spinnerCat"
-        android:layout_alignLeft="@+id/spinnerCat"
-        android:layout_alignStart="@+id/spinnerCat" />
+         />
+    </ScrollView>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nội dung"
         android:id="@+id/textView7"
-        android:layout_below="@+id/txtDescribe"
+        android:layout_below="@+id/scrView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrContent"
+        android:minHeight="200dp"
+        android:layout_below="@+id/scrView"
+        android:layout_alignRight="@+id/scrView"
+        android:layout_alignEnd="@+id/scrView"
+        android:layout_alignLeft="@+id/scrView"
+        android:layout_alignStart="@+id/scrView"
+        >
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
+        android:maxLines="50"
         android:ems="10"
         android:id="@+id/txtContent"
-        android:layout_below="@+id/txtDescribe"
-        android:layout_alignRight="@+id/txtDescribe"
-        android:layout_alignEnd="@+id/txtDescribe"
-        android:layout_alignLeft="@+id/txtDescribe"
-        android:layout_alignStart="@+id/txtDescribe" />
+         />
+    </ScrollView>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="File đính kèm"
         android:id="@+id/btnUploadFile"
-        android:layout_below="@+id/txtContent"
+        android:layout_below="@+id/scrContent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

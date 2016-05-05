@@ -1,4 +1,4 @@
-package com.Utils;
+package com.utils;
 
 import android.content.Context;
 import android.view.View;
@@ -13,6 +13,7 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.ParseUser;
 
 /**
  * Created by Administrator on 4/21/2016.
@@ -25,6 +26,7 @@ public class FriendListAdapter extends ParseQueryAdapter<ProfileUser> {
                 // Here we can configure a ParseQuery to display
                 // only top-rated meals.
                 ParseQuery query = new ParseQuery("user_details");
+                query.whereNotEqualTo("user", ParseUser.getCurrentUser());
                 //query.whereContainedIn("rating", Arrays.asList("5", "4"));
                 //query.orderByDescending("rating");
                 return query;
@@ -52,7 +54,11 @@ public class FriendListAdapter extends ParseQueryAdapter<ProfileUser> {
             });
         }
         TextView userName = (TextView) v.findViewById(R.id.user_name);
-        userName.setText(object.getAuthorName());
+        try {
+            userName.setText(object.getParseUser("user").fetchIfNeeded().getString("name"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         TextView school = (TextView) v.findViewById(R.id.user_school);
         school.setText(object.getSchool());
         ImageView status = (ImageView) v.findViewById(R.id.arrow);

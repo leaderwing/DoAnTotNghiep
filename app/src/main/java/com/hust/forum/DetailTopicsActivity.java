@@ -1,11 +1,8 @@
 package com.hust.forum;
 
-import android.app.ActionBar;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,19 +10,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.Utils.DividerItemDecoration;
-import com.Utils.PostInfoAdapter;
+import com.utils.DividerItemDecoration;
+import com.utils.PostInfoAdapter;
 import com.example.quy2016.doantotnghiep.R;
 import com.model.Post_Info;
 import com.parse.FindCallback;
@@ -86,8 +80,6 @@ public class DetailTopicsActivity extends AppCompatActivity {
             default:
                 break;
         }
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.back);
         actionBar.setHomeButtonEnabled(true);
@@ -102,18 +94,10 @@ public class DetailTopicsActivity extends AppCompatActivity {
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent intent = new Intent(getApplicationContext() , MainPostActivity.class );
-                Post_Info post_info = post_infos.get(position);
-                String email = post_info.getEmail();
-                Toast.makeText(getApplicationContext(),email ,Toast.LENGTH_SHORT).show();
-                String content = post_info.getDescribe();
-                Toast.makeText(getApplicationContext(),content ,Toast.LENGTH_SHORT).show();
-                Bundle bundle = new Bundle();
-                bundle.putString("email",email);
-                bundle.putString("name",post_info.getAuthorName());
-                bundle.putString("title",post_info.getTitle());
-                bundle.putString("content",content);
-                intent.putExtra("sendData",bundle);
+                Intent intent = new Intent(getApplicationContext(), MainPostActivity.class);
+                String objectId = post_infos.get(position).getObjectId();
+                //Toast.makeText(getApplicationContext(),objectId,Toast.LENGTH_SHORT).show();
+                intent.putExtra("sendData", objectId);
                 startActivity(intent);
             }
 
@@ -122,48 +106,38 @@ public class DetailTopicsActivity extends AppCompatActivity {
 
             }
         }));
-        new SyncData().execute();
 
+        prepareDataPost();
     }
-    class SyncData extends AsyncTask<String, Void, String>
-    {
-        ProgressDialog pd;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
-        @Override
-        protected String doInBackground(String... sText) {
-            prepareDataPost();
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String result) {
-
-            super.onPostExecute(result);
-
-        }
-    }
 
     private void prepareDataPost() {
+        progress = ProgressDialog.show(this, "",
+                "SAVING DATA...", true);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Post_Info");
         query.whereEqualTo("Course", course);
         query.addDescendingOrder("createdAt");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
+                progress.dismiss();
                 if (objects != null && objects.size() > 0) {
                     for (int i = 0; i < objects.size(); i++) {
                         ParseObject po = objects.get(i);
                         Post_Info post_info = new Post_Info();
-                        post_info.setAuthorName(po.getString("AuthorName"));
+                        post_info.setUser(po.getParseUser("user"));
+                        post_info.setObjectId(po.getObjectId());
+                        post_info.setDescribe(po.getString("Describe"));
                         post_info.setTitle(po.getString("Title"));
                         post_info.setNumberPost(po.getInt("Post_Num_Comment"));
                         post_info.setNumberView(po.getInt("Post_Num_View"));
                         post_infos.add(post_info);
                         postInfoAdapter.notifyDataSetChanged();
                     }
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext() , "Chưa có bài đăng nào" ,Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -259,8 +233,20 @@ public class DetailTopicsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                new SyncData().execute();
+                clearData();
+                prepareDataPost();
+
             }
+        }
+    }
+    public void clearData() {
+        int size = this.post_infos.size();
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                this.post_infos.remove(0);
+            }
+
+            postInfoAdapter.notifyDataSetChanged();
         }
     }
 }

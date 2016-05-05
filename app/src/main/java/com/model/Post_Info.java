@@ -2,6 +2,7 @@ package com.model;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import java.util.Date;
 
@@ -14,21 +15,14 @@ public class Post_Info extends ParseObject {
     public Post_Info() {
         super();
     }
-    public String getAuthorName() {
-        return getString("AuthorName");
+    public ParseUser getUser()
+    {
+        return getParseUser("user");
     }
-
-    public void setAuthorName(String user) {
-        put("AuthorName", user);
+    public void setUser(ParseUser user)
+    {
+        put("user",user);
     }
-
-    public String getEmail() {
-        return getString("Email");
-    }
-    public void setEmail(String Email) {
-        put("Email", Email);
-    }
-
     public String getCourse() {
         return getString("Course");
     }

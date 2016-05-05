@@ -15,8 +15,6 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.ui.ParseLoginActivity;
 
-import static com.Utils.Utils.UserStatus;
-
 public class MainActivity extends AppCompatActivity{
     DrawerLayout mDrawerLayout;
     NavigationView mNavigationView;

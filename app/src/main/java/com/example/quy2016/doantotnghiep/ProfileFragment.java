@@ -2,6 +2,7 @@ package com.example.quy2016.doantotnghiep;
 
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,8 +44,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Ratan on 7/29/2015.
@@ -59,7 +65,9 @@ public class ProfileFragment extends Fragment
     public  static  final  int SELECT_PICTURE = 1000;
     public Uri selectedImageUri;
     public  String selectedImagePath;
-    public String user_email;
+    public String user_email, user_name;
+    Date dateFinish;
+    Calendar cal;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -104,8 +112,8 @@ public class ProfileFragment extends Fragment
                 // Upload the image into Parse Cloud
                 ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
                 profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
+                query1.whereEqualTo("user",ParseUser.getCurrentUser());
+                query1.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
                         object.put("user_avatar",file);
@@ -116,31 +124,47 @@ public class ProfileFragment extends Fragment
 
             }
         });
+        cal=Calendar.getInstance();
+        SimpleDateFormat dft=null;
+        //Định dạng ngày / tháng /năm
+        dft=new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        final String strDate=dft.format(cal.getTime());
+        //hiển thị lên giao diện
+
         ParseUser user = ParseUser.getCurrentUser();
         user_email = user.getEmail().toString();
+        user_name = user.getUsername().toString();
         tvName.setText(user.get("name").toString());
         tvEmail.setText(user_email);
 
         final ParseQuery<ParseObject> query = ParseQuery.getQuery("user_details");
-        query.whereEqualTo("Email", ParseUser.getCurrentUser().getEmail());
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 for (ParseObject object : objects) {
-
                     profileUser = new ProfileUser();
-                    profileUser.setBirthday(object.getDate("user_birthday").toString());
+                   if (object.getString("user_birthday") != null )
+                    profileUser.setBirthday(object.getString("user_birthday"));
+                    else
+                   profileUser.setBirthday(strDate);
+                    if (object.getString("course") != null )
                     profileUser.setCourse(object.getString("course"));
+                    if (object.getString("user_char") != null )
                     profileUser.setCharacter(object.getString("user_char"));
+                    if (object.getString("user_school") != null )
                     profileUser.setSchool(object.getString("user_school"));
+                    if (object.getString("user_hobbies") != null )
                     profileUser.setHobbies(object.getString("user_hobbies"));
-                    if(!object.getParseFile("user_avatar").isDirty())
-                    profileUser.setPhotoFile(object.getParseFile("user_avatar"));
-                    tvBirthday.setText(profileUser.getBirthday().toString());
-                    tvCourse.setText(profileUser.getCourse().toString());
-                    tvSchool.setText(profileUser.getSchool().toString());
-                    tvHobby.setText(profileUser.getHobbies().toString());
-                    tvCharacter.setText(profileUser.getCharacter().toString());
+                    profileUser.setObjectId(object.getObjectId());
+                   // profileUser.setbjectId(object.getObjectId());
+                    //if(!object.getParseFile("user_avatar").isDirty())
+                   // profileUser.setPhotoFile(object.getParseFile("user_avatar"));
+                    tvBirthday.setText(profileUser.getBirthday());
+                    tvCourse.setText(profileUser.getCourse());
+                    tvSchool.setText(profileUser.getSchool());
+                    tvHobby.setText(profileUser.getHobbies());
+                    tvCharacter.setText(profileUser.getCharacter());
                    // avatar.setImageBitmap(profileUser.getPhotoFile().);
                 }
             }
@@ -151,7 +175,7 @@ public class ProfileFragment extends Fragment
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     tvName.setFocusableInTouchMode(true);
-                    isChecked = false;
+
                 } else {
                     tvName.setFocusableInTouchMode(false);
                     tvName.setFocusable(false);
@@ -172,21 +196,32 @@ public class ProfileFragment extends Fragment
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     tvBirthday.setFocusableInTouchMode(true);
-                    isChecked = false;
+                    showDatePickerDialog();
                 } else {
                     tvBirthday.setFocusableInTouchMode(false);
                     tvBirthday.setFocusable(false);
                 }
+
                 ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
-                profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
+                query1.whereEqualTo("user",ParseUser.getCurrentUser());
+                query1.findInBackground(new FindCallback<ParseObject>() {
                     @Override
-                    public void done(ParseObject object, ParseException e) {
-                        object.put("user_birthday",tvBirthday.getText());
-                        object.saveInBackground();
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        for (ParseObject object : objects) {
+                            profileUser = new ProfileUser();
+                            profileUser.setObjectId(object.getObjectId());
+                            ParseQuery<ParseObject> query11 = ParseQuery.getQuery("user_details");
+                            query11.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
+                                @Override
+                                public void done(ParseObject object, ParseException e) {
+                                    object.put("user_birthday", tvBirthday.getText().toString());
+                                    object.saveInBackground();
+                                }
+                            });
+                        }
                     }
                 });
+
             }
         });
         btnHobby.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -194,21 +229,30 @@ public class ProfileFragment extends Fragment
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     tvHobby.setFocusableInTouchMode(true);
-                    isChecked = false;
                 } else {
                     tvHobby.setFocusableInTouchMode(false);
                     tvHobby.setFocusable(false);
+                    ParseQuery<ParseObject> query2 = ParseQuery.getQuery("user_details");
+                    query2.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query2.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            for (ParseObject objective : objects) {
+                                profileUser = new ProfileUser();
+                                profileUser.setObjectId(objective.getObjectId());
+                                ParseQuery<ParseObject> query21 = ParseQuery.getQuery("user_details");
+                                query21.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
+                                    @Override
+                                    public void done(ParseObject object, ParseException e) {
+                                        object.put("user_hobbies", tvHobby.getText().toString());
+                                        object.saveInBackground();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
-                ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
-                profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        object.put("user_hobbies",tvHobby.getText());
-                        object.saveInBackground();
-                    }
-                });
+
 
             }
         });
@@ -221,17 +265,28 @@ public class ProfileFragment extends Fragment
                 } else {
                     tvCourse.setFocusableInTouchMode(false);
                     tvCourse.setFocusable(false);
+                    ParseQuery<ParseObject> query3 = ParseQuery.getQuery("user_details");
+                    query3.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query3.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            for (ParseObject objective : objects) {
+                                profileUser = new ProfileUser();
+                                profileUser.setObjectId(objective.getObjectId());
+                                ParseQuery<ParseObject> query31 = ParseQuery.getQuery("user_details");
+                                query31.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
+                                    @Override
+                                    public void done(ParseObject object, ParseException e) {
+                                        object.put("course", tvCourse.getText().toString());
+                                        object.saveInBackground();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
-                ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
-                profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        object.put("Course",tvCourse.getText());
-                        object.saveInBackground();
-                    }
-                });
+
+
             }
         });
         btnCharacter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -243,17 +298,28 @@ public class ProfileFragment extends Fragment
                 } else {
                     tvCharacter.setFocusableInTouchMode(false);
                     tvCharacter.setFocusable(false);
+                    ParseQuery<ParseObject> query4 = ParseQuery.getQuery("user_details");
+                    query4.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query4.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            for (ParseObject objective : objects) {
+                                profileUser = new ProfileUser();
+                                profileUser.setObjectId(objective.getObjectId());
+                                ParseQuery<ParseObject> query41 = ParseQuery.getQuery("user_details");
+                                query41.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
+                                    @Override
+                                    public void done(ParseObject object, ParseException e) {
+                                        object.put("user_char", tvCharacter.getText().toString());
+                                        object.saveInBackground();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
-                ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
-                profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        object.put("user_char",tvCharacter.getText());
-                        object.saveInBackground();
-                    }
-                });
+
+
             }
         });
         btnSchool.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -265,17 +331,28 @@ public class ProfileFragment extends Fragment
                 } else {
                     tvSchool.setFocusableInTouchMode(false);
                     tvSchool.setFocusable(false);
+                    ParseQuery<ParseObject> query5 = ParseQuery.getQuery("user_details");
+                    query5.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query5.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            for (ParseObject objective : objects) {
+                                profileUser = new ProfileUser();
+                                profileUser.setObjectId(objective.getObjectId());
+                                ParseQuery<ParseObject> query51 = ParseQuery.getQuery("user_details");
+                                query51.getInBackground(profileUser.getObjectId(), new GetCallback<ParseObject>() {
+                                    @Override
+                                    public void done(ParseObject object, ParseException e) {
+                                        object.put("user_school", tvSchool.getText().toString());
+                                        object.saveInBackground();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
-                ParseQuery<ParseObject> query1 = ParseQuery.getQuery("user_details");
-                profileUser = new ProfileUser();
-                query1.whereEqualTo("Email",user_email);
-                query1.getInBackground(profileUser.getbjectId(), new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        object.put("user_school",tvSchool.getText());
-                        object.saveInBackground();
-                    }
-                });
+
+
             }
         });
 
@@ -324,4 +401,32 @@ public class ProfileFragment extends Fragment
         return cursor.getString(column_index);
 
     }
+    public void showDatePickerDialog()
+    {
+        DatePickerDialog.OnDateSetListener callback=new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(DatePicker view, int year,
+                                  int monthOfYear,
+                                  int dayOfMonth) {
+                //Mỗi lần thay đổi ngày tháng năm thì cập nhật lại TextView Date
+                tvBirthday.setText(
+                        (dayOfMonth) + "/" + (monthOfYear+1)+"/"+year);
+                //Lưu vết lại biến ngày hoàn thành
+                cal.set(year, monthOfYear, dayOfMonth);
+                dateFinish=cal.getTime();
+            }
+        };
+        //các lệnh dưới này xử lý ngày giờ trong DatePickerDialog
+        //sẽ giống với trên TextView khi mở nó lên
+        String s=tvBirthday.getText()+"";
+        String strArrtmp[]=s.split("/");
+        int ngay=Integer.parseInt(strArrtmp[0]);
+        int thang=Integer.parseInt(strArrtmp[1])-1;
+        int nam= Integer.parseInt(strArrtmp[2]);
+        DatePickerDialog pic=new DatePickerDialog(
+                getActivity(),
+                callback, nam, thang, ngay);
+        pic.setTitle("Chọn ngày sinh");
+        pic.show();
+    }
+
 }

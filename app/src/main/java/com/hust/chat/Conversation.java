@@ -1,12 +1,9 @@
 package com.hust.chat;
 
-import com.Utils.Const;
-import com.Utils.FriendListAdapter;
-import com.hust.friend_find.FriendListFragment;
+import com.utils.Const;
 import com.model.ProfileUser;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 import java.util.Date;
 

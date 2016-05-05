@@ -1,12 +1,11 @@
 package com.hust.chat;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
@@ -15,13 +14,13 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.Utils.Const;
+import com.utils.Const;
 import com.example.quy2016.doantotnghiep.R;
-import com.model.ProfileUser;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -36,11 +35,12 @@ import java.util.List;
 /**
  * Created by QUY2016 on 4/27/2016.
  */
-public class ChatActivity extends CustomActivity {
+public class ChatActivity extends AppCompatActivity {
     private ArrayList<Conversation> listCon;
     public  static  boolean hasMsg  = false;
     private ChatAdapter adapter;
     EditText editText;
+    Button btnSend;
     private String buddy , currentUser;
     private Handler handler;
     private ParseUser user;
@@ -58,9 +58,23 @@ public class ChatActivity extends CustomActivity {
         list.setStackFromBottom(true);
         editText = (EditText) findViewById(R.id.txtChat);
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        setTouchNClick(R.id.btSend);
+        btnSend = (Button) findViewById(R.id.btSend);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+            }
+        });
         buddy = getIntent().getStringExtra(Const.EXTRA_DATA_SEND);
-        currentUser = ParseUser.getCurrentUser().getEmail();
+        currentUser = ParseUser.getCurrentUser().getUsername();
+        android.support.v7.app.ActionBar actionBar ;
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            actionBar.setHomeAsUpIndicator(R.drawable.back);
+        }
+        actionBar.setHomeButtonEnabled(true);
+       // LoadChatConversation();
         handler = new Handler();
 
     }
@@ -71,7 +85,13 @@ public class ChatActivity extends CustomActivity {
         isRunning = true;
         LoadChatConversation();
 
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isRunning  = true;
+        LoadChatConversation();
     }
 
     @Override
@@ -80,14 +100,6 @@ public class ChatActivity extends CustomActivity {
         isRunning = false;
     }
 
-    @Override
-    public void onClick(View v) {
-        super.onClick(v);
-        if(v.getId() == R.id.btSend)
-        {
-            sendMessage();
-        }
-    }
 
     private void sendMessage()
     {
@@ -120,7 +132,8 @@ public class ChatActivity extends CustomActivity {
                     c.setStatus(Const.STATUS_SENT);
                 else
                     c.setStatus(Const.STATUS_FAILED);
-                adapter.notifyDataSetChanged();
+                //clearData();
+                LoadChatConversation();
             }
         });
     }
@@ -168,7 +181,7 @@ public class ChatActivity extends CustomActivity {
                             if (isRunning)
                                 LoadChatConversation();
                         }
-                    }, 1000);
+                    }, 100);
                 }
             });
 
@@ -250,5 +263,15 @@ public class ChatActivity extends CustomActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+    public void clearData() {
+        int size = this.listCon.size();
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                this.listCon.remove(0);
+            }
+
+            adapter.notifyDataSetChanged();
+        }
     }
 }

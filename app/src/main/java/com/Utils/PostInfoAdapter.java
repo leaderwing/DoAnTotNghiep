@@ -1,6 +1,5 @@
-package com.Utils;
+package com.utils;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,8 @@ import android.widget.TextView;
 
 import com.example.quy2016.doantotnghiep.R;
 import com.model.Post_Info;
+import com.parse.ParseException;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -49,8 +50,13 @@ public class PostInfoAdapter extends RecyclerView.Adapter<PostInfoAdapter.MyView
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Post_Info post_info = postsList.get(position);
+        ParseUser user = post_info.getUser();
         holder.title.setText(post_info.getTitle());
-        holder.author.setText(post_info.getAuthorName());
+        try {
+            holder.author.setText(user.fetchIfNeeded().getString("name"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         //holder.date.setText(post_info.getDate().toString());
         holder.viewNum.setText(String.valueOf(post_info.getNumberPost()));
         holder.commentNum.setText(String.valueOf(post_info.getNumberPost()));

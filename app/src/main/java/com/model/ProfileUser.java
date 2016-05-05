@@ -14,26 +14,15 @@ public class ProfileUser extends ParseObject {
     {
 
     }
-    public String getAuthorName()
+    public ParseUser getUser()
     {
-        return getString("Name");
+        return getParseUser("user");
     }
-    public  void setAuthorName(String user)
+    public void setUser(ParseUser user)
     {
-        put("Name",user);
+        put("user",user);
     }
-    public  String getEmail()
-    {
-        return getString("Email");
-    }
-    public  void setEmail(String user)
-    {
-        put("Email",user);
-    }
-    public String getbjectId()
-    {
-        return getObjectId();
-    }
+
     public String getCourse()
     {
         return getString("course");
